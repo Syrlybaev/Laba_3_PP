@@ -1,4 +1,6 @@
 import re
+import requests
+from bs4 import BeautifulSoup
 
 # Функция для проверки високосного года
 def is_leap_year(year):
@@ -55,6 +57,7 @@ def menu():
         else:
             print("Совпадений не найдено!")
         menu()
+
     elif user_choice == 2: # 2
         filename = "Text.txt" # https://www.polovinka.org/goroskop_po_date_rozhdenija/8-01-2006/
         try:
@@ -69,6 +72,32 @@ def menu():
         except FileNotFoundError:
             print("Файл не найден. Проверьте путь и попробуйте снова.")
         menu()
+    elif user_choice == 3: # 3
+        print("Введите URL страницы:")
+        url = input()
+        try:
+            response = requests.get(url) # Загружают HTML-код страницы.
+            response.raise_for_status() # Проверяют, успешна ли загрузка.
+            soup = BeautifulSoup(response.text, 'html.parser') # Создают объект для удобного парсинга HTML.
+            page_text = soup.get_text() # Извлекают чистый текст из HTML-кода, чтобы его можно было проанализировать на наличие нужной информации.
+
+            matches = re.findall(pattern, page_text)
+            if matches:
+                print("Всего совпадений:", len(matches))
+                print("Найденные даты:", [".".join(match[:3]) for match in matches])
+            else:
+                print("Совпадений не найдено на странице!")
+        except requests.exceptions.RequestException as e:
+            print("Ошибка при загрузке страницы:", e)
+        menu()
+
+    elif user_choice == 4: # 4
+        return 0
+    
+    else:
+        print("Неправильный ввод. Попробуйте еще раз\n")
+        menu()
+
     
 
 
